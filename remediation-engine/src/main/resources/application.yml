@@ -1,0 +1,44 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: remediation-engine
+
+sentinel:
+  # Autonomous mode: act on AI alerts without a human. Can be toggled from the control panel.
+  auto-remediation: ${AUTO_REMEDIATION:true}
+  # Dry-run: never touch Docker; "restart" is simulated by clearing the service's fault state.
+  # Also used automatically when the Docker socket is not mounted (e.g. running from IntelliJ).
+  dry-run: ${DRY_RUN:false}
+  docker-socket: ${DOCKER_SOCKET:/var/run/docker.sock}
+  # A restarted JVM looks unusual while it warms up; do not remediate the same service again too soon.
+  cooldown-seconds: ${COOLDOWN_SECONDS:60}
+  recovery-timeout-seconds: ${RECOVERY_TIMEOUT_SECONDS:120}
+  intelligence-url: ${INTELLIGENCE_URL:http://localhost:8000}
+  order-service-url: ${ORDER_SERVICE_URL:http://localhost:8081}
+  payment-standby-url: ${PAYMENT_STANDBY_URL:http://localhost:8084}
+  grafana-url: ${GRAFANA_PUBLIC_URL:http://localhost:3000}
+  prometheus-url: ${PROMETHEUS_PUBLIC_URL:http://localhost:9090}
+  services:
+    order-service:
+      container: sentinel-order
+      base-url: ${ORDER_SERVICE_URL:http://localhost:8081}
+      has-standby: false
+    payment-service:
+      container: sentinel-payment
+      base-url: ${PAYMENT_PRIMARY_URL:http://localhost:8082}
+      has-standby: true
+    inventory-service:
+      container: sentinel-inventory
+      base-url: ${INVENTORY_URL:http://localhost:8083}
+      has-standby: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  metrics:
+    tags:
+      application: ${spring.application.name}

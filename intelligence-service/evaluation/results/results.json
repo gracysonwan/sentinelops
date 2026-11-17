@@ -1,0 +1,581 @@
+{
+  "faults": {
+    "latency_ramp": {
+      "reactive-threshold": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 86.75,
+        "mean_lead_s": 0.0,
+        "median_lead_s": 0.0,
+        "precision": 1.0,
+        "recall": 0.9036111111111111,
+        "f1": 0.949365241500073
+      },
+      "early-threshold": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 21.666666666666668,
+        "mean_lead_s": 65.08333333333333,
+        "median_lead_s": 65.0,
+        "precision": 1.0,
+        "recall": 0.975925925925926,
+        "f1": 0.9878163074039363
+      },
+      "zscore": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 71.75,
+        "median_lead_s": 70.0,
+        "precision": 1.0,
+        "recall": 0.9833333333333333,
+        "f1": 0.9915966386554621
+      },
+      "sentinelops": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 71.75,
+        "median_lead_s": 70.0,
+        "precision": 1.0,
+        "recall": 0.9833333333333333,
+        "f1": 0.9915966386554621
+      },
+      "sentinelops-gate2": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 71.75,
+        "median_lead_s": 70.0,
+        "precision": 1.0,
+        "recall": 0.9833333333333333,
+        "f1": 0.9915966386554621
+      }
+    },
+    "error_burst": {
+      "reactive-threshold": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 42.416666666666664,
+        "mean_lead_s": 0.0,
+        "median_lead_s": 0.0,
+        "precision": 1.0,
+        "recall": 0.9487037037037037,
+        "f1": 0.9736767081630713
+      },
+      "early-threshold": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 7.25,
+        "mean_lead_s": 35.166666666666664,
+        "median_lead_s": 35.0,
+        "precision": 1.0,
+        "recall": 0.9914814814814815,
+        "f1": 0.995722521852334
+      },
+      "zscore": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 14.416666666666666,
+        "mean_lead_s": 28.0,
+        "median_lead_s": 25.0,
+        "precision": 1.0,
+        "recall": 0.9839814814814815,
+        "f1": 0.9919260745788024
+      },
+      "sentinelops": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 0.9666666666666667,
+        "mean_delay_s": 19.0,
+        "mean_lead_s": 23.416666666666668,
+        "median_lead_s": 25.0,
+        "precision": 1.0,
+        "recall": 0.9467592592592593,
+        "f1": 0.9726516052318669
+      },
+      "sentinelops-gate2": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 0.9666666666666667,
+        "mean_delay_s": 18.5,
+        "mean_lead_s": 23.916666666666668,
+        "median_lead_s": 25.0,
+        "precision": 1.0,
+        "recall": 0.9473148148148148,
+        "f1": 0.9729447006799488
+      }
+    },
+    "memory_leak": {
+      "reactive-threshold": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 172.16666666666666,
+        "mean_lead_s": 0.0,
+        "median_lead_s": 0.0,
+        "precision": 1.0,
+        "recall": 0.7964814814814815,
+        "f1": 0.8867127100298938
+      },
+      "early-threshold": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 139.66666666666666,
+        "mean_lead_s": 32.5,
+        "median_lead_s": 32.5,
+        "precision": 1.0,
+        "recall": 0.8448148148148148,
+        "f1": 0.9158803453121863
+      },
+      "zscore": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 60.5,
+        "mean_lead_s": 111.66666666666667,
+        "median_lead_s": 110.0,
+        "precision": 1.0,
+        "recall": 0.9327777777777778,
+        "f1": 0.9652198907732107
+      },
+      "sentinelops": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 95.16666666666667,
+        "mean_lead_s": 77.0,
+        "median_lead_s": 75.0,
+        "precision": 1.0,
+        "recall": 0.8897222222222222,
+        "f1": 0.9416433926209025
+      },
+      "sentinelops-gate2": {
+        "runs": 60,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 95.08333333333333,
+        "mean_lead_s": 77.08333333333333,
+        "median_lead_s": 75.0,
+        "precision": 1.0,
+        "recall": 0.8898148148148148,
+        "f1": 0.9416952474277315
+      }
+    },
+    "gray_failure": {
+      "reactive-threshold": {
+        "runs": 60,
+        "detection_rate": 0.0,
+        "detected_before_failure": 0.0,
+        "mean_delay_s": null,
+        "mean_lead_s": null,
+        "median_lead_s": null,
+        "precision": null,
+        "recall": 0.0,
+        "f1": null
+      },
+      "early-threshold": {
+        "runs": 60,
+        "detection_rate": 0.11666666666666667,
+        "detected_before_failure": 0.11666666666666667,
+        "mean_delay_s": 369.2857142857143,
+        "mean_lead_s": null,
+        "median_lead_s": null,
+        "precision": 1.0,
+        "recall": 0.0006481481481481481,
+        "f1": 0.0012954566484685852
+      },
+      "zscore": {
+        "runs": 60,
+        "detection_rate": 0.3333333333333333,
+        "detected_before_failure": 0.3333333333333333,
+        "mean_delay_s": 223.25,
+        "mean_lead_s": null,
+        "median_lead_s": null,
+        "precision": 1.0,
+        "recall": 0.16296296296296298,
+        "f1": 0.2802547770700637
+      },
+      "sentinelops": {
+        "runs": 60,
+        "detection_rate": 0.3333333333333333,
+        "detected_before_failure": 0.3333333333333333,
+        "mean_delay_s": 236.25,
+        "mean_lead_s": null,
+        "median_lead_s": null,
+        "precision": 1.0,
+        "recall": 0.14666666666666667,
+        "f1": 0.2558139534883721
+      },
+      "sentinelops-gate2": {
+        "runs": 60,
+        "detection_rate": 0.8166666666666667,
+        "detected_before_failure": 0.8166666666666667,
+        "mean_delay_s": 284.0816326530612,
+        "mean_lead_s": null,
+        "median_lead_s": null,
+        "precision": 1.0,
+        "recall": 0.24574074074074073,
+        "f1": 0.3945295079530251
+      }
+    }
+  },
+  "normal": {
+    "normal": {
+      "reactive-threshold": {
+        "false_alarms_per_hour": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "early-threshold": {
+        "false_alarms_per_hour": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "zscore": {
+        "false_alarms_per_hour": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "sentinelops": {
+        "false_alarms_per_hour": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "sentinelops-gate2": {
+        "false_alarms_per_hour": 0.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    "load_surge": {
+      "reactive-threshold": {
+        "false_alarms_per_hour": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "early-threshold": {
+        "false_alarms_per_hour": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "zscore": {
+        "false_alarms_per_hour": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "sentinelops": {
+        "false_alarms_per_hour": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "sentinelops-gate2": {
+        "false_alarms_per_hour": 10.472727272727276,
+        "false_positive_rate": 0.05
+      }
+    }
+  },
+  "ramp_sweep": {
+    "5": {
+      "reactive-threshold": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 340.0,
+        "mean_lead_s": 0.0,
+        "median_lead_s": 0.0,
+        "precision": 1.0,
+        "recall": 0.43333333333333335,
+        "f1": 0.6046511627906976
+      },
+      "early-threshold": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 80.0,
+        "mean_lead_s": 260.0,
+        "median_lead_s": 260.0,
+        "precision": 1.0,
+        "recall": 0.8666666666666667,
+        "f1": 0.9285714285714286
+      },
+      "zscore": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 17.0,
+        "mean_lead_s": 323.0,
+        "median_lead_s": 325.0,
+        "precision": 1.0,
+        "recall": 0.9716666666666667,
+        "f1": 0.9856297548605241
+      },
+      "sentinelops": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 17.75,
+        "mean_lead_s": 322.25,
+        "median_lead_s": 320.0,
+        "precision": 1.0,
+        "recall": 0.9704166666666667,
+        "f1": 0.9849862550222035
+      },
+      "sentinelops-gate2": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 16.5,
+        "mean_lead_s": 323.5,
+        "median_lead_s": 325.0,
+        "precision": 1.0,
+        "recall": 0.9725,
+        "f1": 0.9860583016476552
+      }
+    },
+    "10": {
+      "reactive-threshold": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 170.0,
+        "mean_lead_s": 0.0,
+        "median_lead_s": 0.0,
+        "precision": 1.0,
+        "recall": 0.7166666666666667,
+        "f1": 0.8349514563106796
+      },
+      "early-threshold": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 40.0,
+        "mean_lead_s": 130.0,
+        "median_lead_s": 130.0,
+        "precision": 1.0,
+        "recall": 0.9333333333333333,
+        "f1": 0.9655172413793104
+      },
+      "zscore": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 155.0,
+        "median_lead_s": 155.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      },
+      "sentinelops": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 155.0,
+        "median_lead_s": 155.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      },
+      "sentinelops-gate2": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 155.0,
+        "median_lead_s": 155.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      }
+    },
+    "20": {
+      "reactive-threshold": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 85.25,
+        "mean_lead_s": 0.0,
+        "median_lead_s": 0.0,
+        "precision": 1.0,
+        "recall": 0.8579166666666667,
+        "f1": 0.923525454137699
+      },
+      "early-threshold": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 20.0,
+        "mean_lead_s": 65.25,
+        "median_lead_s": 65.0,
+        "precision": 1.0,
+        "recall": 0.9666666666666667,
+        "f1": 0.983050847457627
+      },
+      "zscore": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 70.25,
+        "median_lead_s": 70.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      },
+      "sentinelops": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 70.25,
+        "median_lead_s": 70.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      },
+      "sentinelops-gate2": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 70.25,
+        "median_lead_s": 70.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      }
+    },
+    "40": {
+      "reactive-threshold": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 45.0,
+        "mean_lead_s": 0.0,
+        "median_lead_s": 0.0,
+        "precision": 1.0,
+        "recall": 0.925,
+        "f1": 0.961038961038961
+      },
+      "early-threshold": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 10.0,
+        "mean_lead_s": 35.0,
+        "median_lead_s": 35.0,
+        "precision": 1.0,
+        "recall": 0.9833333333333333,
+        "f1": 0.9915966386554621
+      },
+      "zscore": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 30.0,
+        "median_lead_s": 30.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      },
+      "sentinelops": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 30.0,
+        "median_lead_s": 30.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      },
+      "sentinelops-gate2": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 30.0,
+        "median_lead_s": 30.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      }
+    },
+    "80": {
+      "reactive-threshold": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 25.0,
+        "mean_lead_s": 0.0,
+        "median_lead_s": 0.0,
+        "precision": 1.0,
+        "recall": 0.9583333333333334,
+        "f1": 0.9787234042553191
+      },
+      "early-threshold": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 5.0,
+        "mean_lead_s": 20.0,
+        "median_lead_s": 20.0,
+        "precision": 1.0,
+        "recall": 0.9916666666666667,
+        "f1": 0.99581589958159
+      },
+      "zscore": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 10.0,
+        "median_lead_s": 10.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      },
+      "sentinelops": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 10.0,
+        "median_lead_s": 10.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      },
+      "sentinelops-gate2": {
+        "runs": 20,
+        "detection_rate": 1.0,
+        "detected_before_failure": 1.0,
+        "mean_delay_s": 15.0,
+        "mean_lead_s": 10.0,
+        "median_lead_s": 10.0,
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873417721518987
+      }
+    }
+  },
+  "config": {
+    "seeds": 20,
+    "baseline_samples": 60,
+    "step_s": 5.0,
+    "fault_at_s": 600.0,
+    "failure_limits": {
+      "p95_ms": 2000.0,
+      "error_ratio": 0.5,
+      "heap_ratio": 0.92
+    },
+    "early_limits": {
+      "p95_ms": 500.0,
+      "error_ratio": 0.1,
+      "heap_ratio": 0.7
+    }
+  }
+}

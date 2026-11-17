@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SentinelOps Control Panel</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --line: #30363d; --text: #e6edf3; --muted: #8b949e;
+    --ok: #3fb950; --warn: #d29922; --bad: #f85149; --info: #58a6ff; --violet: #bc8cff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 24px;
+           border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
+  header h1 span { color: var(--info); }
+  .spacer { flex: 1; }
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600;
+          border: 1px solid currentColor; }
+  .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+  .info { color: var(--info); } .muted { color: var(--muted); } .violet { color: var(--violet); }
+  a { color: var(--info); text-decoration: none; } a:hover { text-decoration: underline; }
+  main { padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+  .card.alert { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad) inset; }
+  .card.suspect { border-color: var(--warn); }
+  .card h2 { font-size: 15px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .row { display: flex; justify-content: space-between; gap: 8px; margin: 4px 0; }
+  .label { color: var(--muted); }
+  .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .bar { height: 8px; background: #21262d; border-radius: 4px; position: relative; margin: 6px 0 2px; overflow: hidden; }
+  .bar > div { height: 100%; border-radius: 4px; transition: width .4s; }
+  .bar .thr { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--text); opacity: .8; }
+  .feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0; }
+  .feat { background: #0d1117; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+  .feat b { display: block; font-size: 15px; } .feat small { color: var(--muted); font-size: 11px; }
+  .feat.hot { border-color: var(--bad); }
+  .buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  button { background: #21262d; color: var(--text); border: 1px solid var(--line); border-radius: 6px;
+           padding: 6px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+  button:hover { border-color: var(--info); }
+  button.danger:hover { border-color: var(--bad); color: var(--bad); }
+  button.heal { border-color: var(--ok); color: var(--ok); }
+  .toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+  .switch { width: 38px; height: 20px; border-radius: 10px; background: #30363d; position: relative; transition: .2s; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+                   border-radius: 50%; background: #fff; transition: .2s; }
+  .switch.on { background: var(--ok); } .switch.on::after { left: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .steps { margin: 4px 0 0; padding-left: 16px; color: var(--muted); }
+  .section { margin-top: 20px; }
+  .topology { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .node { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: #0d1117; }
+  .arrow { color: var(--muted); }
+  #toast { position: fixed; bottom: 20px; right: 20px; background: var(--panel); border: 1px solid var(--info);
+           padding: 10px 14px; border-radius: 8px; opacity: 0; transition: opacity .3s; max-width: 380px; }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sentinel<span>Ops</span> &middot; Control Panel</h1>
+  <span id="mode" class="pill muted">connecting...</span>
+  <span id="ai" class="pill muted">AI: ?</span>
+  <div class="spacer"></div>
+  <label class="toggle" id="autoToggle" title="When off, the AI still detects anomalies but nothing is healed automatically">
+    <div class="switch" id="autoSwitch"></div><span>Autonomous remediation</span>
+  </label>
+  <a id="grafana" href="#" target="_blank">Grafana &#8599;</a>
+  <a id="prometheus" href="#" target="_blank">Prometheus &#8599;</a>
+</header>
+
+<main>
+  <div class="card">
+    <div class="topology">
+      <span class="label">Traffic:</span>
+      <span class="node">load generator</span><span class="arrow">&#8594;</span>
+      <span class="node">order-service</span><span class="arrow">&#8594;</span>
+      <span class="node">inventory-service</span>
+      <span class="arrow">+</span>
+      <span class="node" id="routeNode">payment: primary</span>
+      <span class="label" style="margin-left:auto">Standby payment instance: <span id="standby" class="pill muted">?</span></span>
+    </div>
+  </div>
+
+  <div class="grid section" id="services"></div>
+
+  <div class="card section">
+    <h2>Remediation timeline <span class="muted" style="font-weight:400">(newest first)</span></h2>
+    <table>
+      <thead><tr><th>#</th><th>Detected</th><th>Service</th><th>Trigger</th><th>Root cause</th>
+        <th>Status</th><th>Recovery</th><th>What happened</th></tr></thead>
+      <tbody id="events"><tr><td colspan="8" class="muted">No remediation yet.</td></tr></tbody>
+    </table>
+  </div>
+</main>
+<div id="toast"></div>
+
+<script>
+const FEATURES = [
+  ["p95_ms", "p95 latency", v => v == null ? "-" : v.toFixed(0) + " ms"],
+  ["error_ratio", "error rate", v => v == null ? "-" : (v * 100).toFixed(1) + " %"],
+  ["heap_ratio", "heap floor", v => v == null ? "-" : (v * 100).toFixed(0) + " %"],
+];
+const STATE_CLASS = { MONITORING: "ok", LEARNING: "info", WARMUP: "violet", DOWN: "bad", NO_DATA: "muted" };
+const STATUS_CLASS = { RECOVERED: "ok", IN_PROGRESS: "warn", FAILED: "bad" };
+let auto = true;
+
+function el(html) { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
+function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 3500); }
+function healthClass(h) { return h === "UP" ? "ok" : h === "DOWN" ? "bad" : "warn"; }
+function time(epochSec) { return epochSec ? new Date(epochSec * 1000).toLocaleTimeString() : "-"; }
+
+async function post(url) {
+  const r = await fetch(url, { method: "POST" });
+  let body = {}; try { body = await r.json(); } catch (e) {}
+  return { ok: r.ok, body };
+}
+
+async function chaos(service, type, params) {
+  const q = new URLSearchParams(params || {}).toString();
+  const r = await post(`/api/chaos/${service}/${type}` + (q ? "?" + q : ""));
+  toast(r.ok ? `${type} ${type === "reset" ? "cleared on" : "injected into"} ${service}` : `Failed: ${r.body.message || r.body.error || "error"}`);
+  refresh();
+}
+
+async function heal(service) {
+  const r = await post(`/api/remediate/${service}`);
+  toast(r.body.message || (r.ok ? "Remediation started" : "Rejected"));
+  refresh();
+}
+
+document.getElementById("autoToggle").onclick = async () => {
+  const r = await post(`/api/settings?autoRemediation=${!auto}`);
+  if (r.ok) { auto = r.body.autoRemediation; toast("Autonomous remediation " + (auto ? "ON" : "OFF (detection only)")); refresh(); }
+};
+
+function serviceCard(name, s) {
+  const ai = s.ai || {};
+  const state = ai.state || "NO_DATA";
+  const chaos = s.chaos || {};
+  const feats = ai.features || {};
+  const z = ai.zscores || {};
+  const score = ai.score, thr = ai.threshold;
+  const pct = v => Math.max(0, Math.min(100, ((v - 0.3) / 0.4) * 100)); // display range 0.3..0.7
+  const cls = ai.confirmed ? "card alert" : ai.anomalous ? "card suspect" : "card";
+  const forecast = ai.forecast && Object.keys(ai.forecast).length
+    ? Object.entries(ai.forecast).map(([k, v]) => `${k} limit in ~${Math.round(v)}s`).join(", ") : null;
+
+  let aiLine;
+  if (state === "LEARNING") aiLine = `Learning normal behaviour: ${ai.baseline_progress}/${ai.baseline_target} samples`;
+  else if (state === "WARMUP") aiLine = `Restarted - warming up (${ai.warmup_remaining ?? "?"}s)`;
+  else if (state === "DOWN") aiLine = "Not reachable by Prometheus";
+  else if (ai.confirmed && ai.suppressed_by) aiLine = `Symptom of ${ai.suppressed_by} (not remediated)`;
+  else if (ai.confirmed) aiLine = `Anomaly confirmed &middot; cause: <b>${esc(ai.root_cause)}</b>`;
+  else if (ai.anomalous) aiLine = `Suspicious (${ai.streak}/3 windows)`;
+  else if (state === "MONITORING") aiLine = "Behaving normally";
+  else aiLine = "No data yet";
+
+  const card = el(`<div class="${cls}">
+    <h2>${esc(name)} <span class="pill ${healthClass(s.health)}">${esc(s.health)}</span>
+      <span class="pill ${STATE_CLASS[state] || "muted"}">${state}</span>
+      ${chaos.active ? '<span class="pill bad">CHAOS</span>' : ""}</h2>
+    <div class="row"><span class="label">AI verdict</span><span>${aiLine}</span></div>
+    <div class="row"><span class="label">Anomaly score</span>
+      <span class="mono">${score != null ? score.toFixed(3) : "-"} / threshold ${thr != null ? thr.toFixed(3) : "-"}</span></div>
+    <div class="bar"><div style="width:${score != null ? pct(score) : 0}%;background:${ai.anomalous ? "var(--bad)" : "var(--ok)"}"></div>
+      ${thr != null ? `<span class="thr" style="left:${pct(thr)}%"></span>` : ""}</div>
+    ${forecast ? `<div class="row"><span class="label">Forecast</span><span class="warn">${esc(forecast)}</span></div>` : ""}
+    <div class="feats">${FEATURES.map(([k, label, fmt]) =>
+      `<div class="feat ${z[k] >= 3 ? "hot" : ""}"><small>${label}</small><b>${fmt(feats[k])}</b>
+       <small>${z[k] != null ? "z = " + z[k].toFixed(1) : ""}</small></div>`).join("")}</div>
+    <div class="row mono muted"><span>injected: ${chaos.latencyMs ?? 0} ms &middot; ${((chaos.errorRate ?? 0) * 100).toFixed(0)} % err &middot; ${chaos.leakedMb ?? 0} MB leaked</span></div>
+    <div class="buttons">
+      <button class="danger" data-a="latency">Latency creep</button>
+      <button class="danger" data-a="errors">Error burst</button>
+      <button class="danger" data-a="memory-leak">Memory leak</button>
+      <button data-a="reset">Clear faults</button>
+      <button class="heal" data-a="heal">Heal now</button>
+    </div></div>`);
+  card.querySelectorAll("button").forEach(b => b.onclick = () => {
+    const a = b.dataset.a;
+    if (a === "heal") heal(name);
+    else if (a === "latency") chaos(name, "latency", { baseMs: 0, rampMsPerSec: 20 });
+    else if (a === "errors") chaos(name, "errors", { rate: 0.05, rampPerSec: 0.01 });
+    else if (a === "memory-leak") chaos(name, "memory-leak", { mbPerSec: 1, maxMb: 200 });
+    else chaos(name, "reset");
+  });
+  return card;
+}
+
+function renderEvents(events) {
+  const tbody = document.getElementById("events");
+  if (!events || !events.length) { tbody.innerHTML = '<tr><td colspan="8" class="muted">No remediation yet.</td></tr>'; return; }
+  tbody.innerHTML = events.map(e => `<tr>
+    <td>${e.id}</td><td class="mono">${time(e.detectedAt)}</td><td>${esc(e.service)}</td>
+    <td>${esc(e.trigger)}</td><td>${esc(e.rootCause)}</td>
+    <td><span class="pill ${STATUS_CLASS[e.status] || "muted"}">${e.status}</span></td>
+    <td class="mono">${e.recoverySeconds != null ? e.recoverySeconds + " s" : "-"}</td>
+    <td>${esc(e.explanation)}<ul class="steps">${(e.steps || []).map(s => `<li class="mono">${esc(s)}</li>`).join("")}</ul>
+      ${e.reason ? `<div class="muted mono">AI: ${esc(e.reason)}</div>` : ""}</td></tr>`).join("");
+}
+
+async function refresh() {
+  try {
+    const r = await fetch("/api/overview");
+    const o = await r.json();
+    auto = o.autoRemediation;
+    document.getElementById("autoSwitch").classList.toggle("on", auto);
+    const mode = document.getElementById("mode");
+    mode.textContent = o.dryRun ? "DRY-RUN (no Docker socket)" : "LIVE (Docker API)";
+    mode.className = "pill " + (o.dryRun ? "warn" : "ok");
+    const ai = document.getElementById("ai");
+    ai.textContent = o.intelligence.reachable ? `AI online · ${o.intelligence.alertsSent} alerts` : "AI unreachable";
+    ai.className = "pill " + (o.intelligence.reachable ? "ok" : "bad");
+    document.getElementById("grafana").href = o.links.grafana;
+    document.getElementById("prometheus").href = o.links.prometheus;
+    const route = (o.routing && o.routing.payment) || "?";
+    const node = document.getElementById("routeNode");
+    node.textContent = "payment: " + route;
+    node.style.borderColor = route === "standby" ? "var(--warn)" : "var(--line)";
+    const sb = document.getElementById("standby");
+    sb.textContent = o.standby.health; sb.className = "pill " + healthClass(o.standby.health);
+    const box = document.getElementById("services");
+    box.innerHTML = "";
+    Object.entries(o.services).forEach(([name, s]) => box.appendChild(serviceCard(name, s)));
+    renderEvents(o.events);
+  } catch (e) {
+    document.getElementById("mode").textContent = "remediation engine unreachable";
+  }
+}
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>

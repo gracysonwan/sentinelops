@@ -1,0 +1,184 @@
+name: sentinelops
+
+# Start everything:   docker compose up --build -d
+# Control panel:      http://localhost:8090      Grafana: http://localhost:3000 (admin / admin)
+
+x-java-service: &java-service
+  restart: unless-stopped
+  environment: &java-env
+    DB_URL: jdbc:postgresql://postgres:5432/sentinelops
+    DB_USER: sentinel
+    DB_PASSWORD: sentinel
+    JAVA_OPTS: "-Xms128m -Xmx256m"
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+x-health: &java-health
+  interval: 10s
+  timeout: 3s
+  retries: 30
+  start_period: 30s
+
+services:
+  # ---------------------------------------------------------------- data
+  postgres:
+    image: postgres:16-alpine
+    container_name: sentinel-postgres
+    environment:
+      POSTGRES_DB: sentinelops
+      POSTGRES_USER: sentinel
+      POSTGRES_PASSWORD: sentinel
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sentinel -d sentinelops"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # ---------------------------------------------------------------- Layer 1 + 2: microservices with chaos module
+  inventory-service:
+    <<: *java-service
+    build: { context: ., args: { MODULE: inventory-service } }
+    image: sentinelops/inventory-service:1.0
+    container_name: sentinel-inventory
+    ports: ["8083:8083"]
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8083/actuator/health"]
+      <<: *java-health
+
+  payment-service:
+    <<: *java-service
+    build: { context: ., args: { MODULE: payment-service } }
+    image: sentinelops/payment-service:1.0
+    container_name: sentinel-payment
+    environment:
+      <<: *java-env
+      INSTANCE_NAME: primary
+    ports: ["8082:8082"]
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8082/actuator/health"]
+      <<: *java-health
+
+  payment-standby:
+    <<: *java-service
+    build: { context: ., args: { MODULE: payment-service } }   # same image as the primary (cached build)
+    image: sentinelops/payment-service:1.0
+    container_name: sentinel-payment-standby
+    environment:
+      <<: *java-env
+      INSTANCE_NAME: standby
+      METRICS_APP_TAG: payment-standby
+    ports: ["8084:8082"]
+    depends_on:
+      payment-service:
+        condition: service_healthy   # avoids both instances creating the payments table at once
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8082/actuator/health"]
+      <<: *java-health
+
+  order-service:
+    <<: *java-service
+    build: { context: ., args: { MODULE: order-service } }
+    image: sentinelops/order-service:1.0
+    container_name: sentinel-order
+    environment:
+      <<: *java-env
+      INVENTORY_URL: http://inventory-service:8083
+      PAYMENT_PRIMARY_URL: http://payment-service:8082
+      PAYMENT_STANDBY_URL: http://payment-standby:8082
+    ports: ["8081:8081"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8081/actuator/health"]
+      <<: *java-health
+
+  # ---------------------------------------------------------------- Layer 3: observability
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: sentinel-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=2d
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports: ["9090:9090"]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    container_name: sentinel-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/sentinelops.json
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports: ["3000:3000"]
+    depends_on: [prometheus]
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------- Layer 4: intelligence (Python AI)
+  intelligence-service:
+    build: ./intelligence-service
+    image: sentinelops/intelligence-service:1.0
+    container_name: sentinel-intelligence
+    environment:
+      PROMETHEUS_URL: http://prometheus:9090
+      REMEDIATION_URL: http://remediation-engine:8090
+      SERVICES: order-service,payment-service,inventory-service
+      DEPENDENCIES: "order-service:payment-service|inventory-service"
+      BASELINE_SAMPLES: "60"     # 60 x 5 s = 5 minutes of normal traffic before monitoring starts
+      MODEL_DIR: /app/models
+    volumes: [models:/app/models]
+    ports: ["8000:8000"]
+    depends_on: [prometheus]
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------- Layer 5: remediation + control panel
+  remediation-engine:
+    build: { context: ., args: { MODULE: remediation-engine } }
+    image: sentinelops/remediation-engine:1.0
+    container_name: sentinel-remediation
+    environment:
+      JAVA_OPTS: "-Xms64m -Xmx192m"
+      AUTO_REMEDIATION: "true"
+      INTELLIGENCE_URL: http://intelligence-service:8000
+      ORDER_SERVICE_URL: http://order-service:8081
+      PAYMENT_PRIMARY_URL: http://payment-service:8082
+      PAYMENT_STANDBY_URL: http://payment-standby:8082
+      INVENTORY_URL: http://inventory-service:8083
+      GRAFANA_PUBLIC_URL: http://localhost:3000
+      PROMETHEUS_PUBLIC_URL: http://localhost:9090
+    volumes:
+      # Lets the engine restart sibling containers through the Docker Engine API.
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports: ["8090:8090"]
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------- traffic
+  loadgen:
+    build: ./loadgen
+    image: sentinelops/loadgen:1.0
+    container_name: sentinel-loadgen
+    environment:
+      ORDER_URL: http://order-service:8081
+      RPS: "10"
+    depends_on:
+      order-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  models:
